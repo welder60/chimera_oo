@@ -14,7 +14,7 @@ class GerenciadorEntidades:
 			leitor = csv.DictReader(csvfile, delimiter=delimitador)
 			for linha in leitor:
 				nome = linha["nome"].strip()
-				tags = [t.strip() for t in linha["tags"].split(",")]
+				tags = [t.strip() for t in linha["tags"].split(";")]
 				entidade = Entidade(nome, tags)
 				self.adicionar(entidade)
 	
