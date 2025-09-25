@@ -4,6 +4,8 @@ Sistema simples em Python para gerenciar entidades fictícias e suas relações 
 
 ## Visão geral
 
+<img width="447" height="430" alt="Diagrama UML" src="https://github.com/user-attachments/assets/cf11429d-863e-4101-84a1-0b28b34762db" />
+
 O projeto define duas classes principais:
 
 - `Entidade`: representa um ser com um nome e um conjunto de tags.
