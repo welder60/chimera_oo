@@ -15,8 +15,8 @@ class TestEntidade(unittest.TestCase):
         - Minotauro: possui HUMANOIDE e CHIFRES
         - Minotauro de Ferro: possui HUMANOIDE, CHIFRES e FERRO
         """
-        self.minotauro = Entidade("Minotauro", ["HUMANOIDE", "CHIFRES"])
-        self.minotauro_de_ferro = Entidade("Minotauro de Ferro", ["HUMANOIDE", "CHIFRES", "FERRO"])
+        self.minotauro = Entidade("Minotauro", ["HUMANOIDE", "CHIFRES"], "imagens/minotauro.png")
+        self.minotauro_de_ferro = Entidade("Minotauro de Ferro", ["HUMANOIDE", "CHIFRES", "FERRO"], "imagens/minotauro_ferro.png")
 
     # --- Testes de criação e atributos básicos ---
 
@@ -25,6 +25,7 @@ class TestEntidade(unittest.TestCase):
         self.assertEqual(self.minotauro._nome, "Minotauro")
         self.assertIn("CHIFRES", self.minotauro._tags)
         self.assertEqual(len(self.minotauro._tags), 2)
+        self.assertEqual(self.minotauro._caminho_imagem, "imagens/minotauro.png")
 
     def test_set_nome(self):
         """Deve alterar o nome da entidade"""
@@ -44,6 +45,7 @@ class TestEntidade(unittest.TestCase):
         texto = str(self.minotauro)
         self.assertIn("Minotauro", texto)
         self.assertIn("CHIFRES", texto)
+        self.assertIn("imagens/minotauro.png", texto)
 
     # --- Testes de relacionamento (contem) ---
 
