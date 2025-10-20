@@ -1,0 +1,28 @@
+{{extend 'layout.html'}}
+
+<div class="container py-4">
+    <h2 class="mb-3">Códex de Criaturas</h2>
+    <p>Visualize as quimeras que você já descobriu e experimente novas combinações.</p>
+
+    <section class="mb-4">
+        <h3>Criaturas descobertas</h3>
+        {{=lista_descobertas}}
+    </section>
+
+    <section class="mb-4">
+        <form method="post">
+            {{=formulario}}
+        </form>
+        {{if mensagem:}}
+            <div class="alert alert-info mt-3">{{=mensagem}}</div>
+        {{pass}}
+    </section>
+
+    {{if lista_resultados:}}
+        <section>
+            <h3>Novas combinações</h3>
+            <p>As criaturas abaixo foram adicionadas ao seu códex caso ainda não estivessem registradas.</p>
+            {{=lista_resultados}}
+        </section>
+    {{pass}}
+</div>
