@@ -16,25 +16,14 @@ class TestGerenciadorEntidades(unittest.TestCase):
         Executa antes de cada teste.
         Cria algumas entidades iniciais e popula o gerenciador.
         """
-        # Entidades básicas
-        self.humano = Entidade("Humano", ["HUMANOIDE"])
-        self.touro = Entidade("Touro", ["CHIFRES"])
-        self.minotauro = Entidade("Minotauro", ["HUMANOIDE", "CHIFRES"])
-        self.minotauro_de_ferro = Entidade("Minotauro de Ferro", ["HUMANOIDE", "CHIFRES", "FERRO"])
-
-        # Gerenciador inicializado
+        # Gerenciador inicializado com criaturas pré-definidas
         self.gerenciador_entidades = GerenciadorEntidades()
 
-        # Adiciona entidades iniciais
-        self.gerenciador_entidades.adicionar(self.humano)
-        self.gerenciador_entidades.adicionar(self.touro)
-        self.gerenciador_entidades.adicionar(self.minotauro)
-        self.gerenciador_entidades.adicionar(self.minotauro_de_ferro)
-
-        # Adiciona algumas extras
-        self.gerenciador_entidades.adicionar(Entidade("Peixe", ["AQUATICO"]))
-        self.gerenciador_entidades.adicionar(Entidade("Sereia", ["HUMANOIDE", "AQUATICO"]))
-        self.gerenciador_entidades.adicionar(Entidade("Ferro", ["FERRO"]))
+        # Recupera referências das criaturas pré-definidas
+        self.humano = self.gerenciador_entidades.get(["Humano"])[0]
+        self.touro = self.gerenciador_entidades.get(["Touro"])[0]
+        self.minotauro = self.gerenciador_entidades.get(["Minotauro"])[0]
+        self.minotauro_de_ferro = self.gerenciador_entidades.get(["Minotauro de Ferro"])[0]
 
     def test_adicionar(self):
         """
@@ -52,12 +41,19 @@ class TestGerenciadorEntidades(unittest.TestCase):
         self.assertEqual(len(resultado), 1)
         self.assertEqual(resultado[0]._nome, "Dragão")
 
+    def test_lista_predefinida(self):
+        """As criaturas pré-definidas devem estar disponíveis ao iniciar o gerenciador"""
+        nomes_esperados = {"Humano", "Touro", "Minotauro", "Minotauro de Ferro", "Peixe", "Sereia", "Ferro"}
+        nomes_carregados = {entidade._nome for entidade in self.gerenciador_entidades._entidades}
+        for nome in nomes_esperados:
+            self.assertIn(nome, nomes_carregados)
+
     def test_carregar_csv(self):
         """
         Testa se o carregamento a partir de um CSV adiciona
         a entidade esperada ao gerenciador.
         """
-        conteudo = "nome,tags\nDragão,FOGO,VOADOR\n"
+        conteudo = "nome,tags\nDragão,FOGO;VOADOR\n"
         with tempfile.NamedTemporaryFile(delete=False, mode="w", encoding="utf-8") as tmp:
             tmp.write(conteudo)
             tmp_path = tmp.name
