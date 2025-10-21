@@ -44,6 +44,9 @@ class GerenciadorEntidades:
                     resultado.append(_entidade)
         return resultado
 
+    def listar_nomes(self):
+        return sorted(entidade._nome for entidade in self._entidades)
+
     def cruzar(self, entidades):
         resultado = []
         for _entidade in self._entidades:
