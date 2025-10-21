@@ -21,6 +21,7 @@ A pasta `package/` contém as implementações das classes, enquanto os arquivos
 ## Requisitos
 
 - Python 3.8 ou superior
+- [Bottle](https://bottlepy.org/) para executar a interface web
 
 ## Instalação do ambiente
 
@@ -29,10 +30,18 @@ Crie e ative um ambiente virtual (opcional, mas recomendado) e instale as depend
 ```bash
 python -m venv .venv
 source .venv/bin/activate  # No Windows use: .venv\Scripts\activate
-pip install -r requirements.txt  # se existir um arquivo de dependências
+pip install bottle
 ```
 
-> O projeto não possui dependências externas além da biblioteca padrão, logo o arquivo `requirements.txt` é opcional.
+## Executando a aplicação web
+
+O projeto oferece uma interface web construída com o microframework Bottle. Para executá-la, utilize:
+
+```bash
+python app.py
+```
+
+O servidor ficará disponível em `http://localhost:8000`. A aplicação mantém o progresso do jogador em `dados_jogador.pkl`.
 
 ## Executando os testes
 
