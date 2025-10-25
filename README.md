@@ -21,27 +21,16 @@ A pasta `package/` contém as implementações das classes, enquanto os arquivos
 ## Requisitos
 
 - Python 3.8 ou superior
-- [Bottle](https://bottlepy.org/) para executar a interface web
 
-## Instalação do ambiente
+## Executando a aplicação desktop
 
-Crie e ative um ambiente virtual (opcional, mas recomendado) e instale as dependências.
-
-```bash
-python -m venv .venv
-source .venv/bin/activate  # No Windows use: .venv\Scripts\activate
-pip install bottle
-```
-
-## Executando a aplicação web
-
-O projeto oferece uma interface web construída com o microframework Bottle. Para executá-la, utilize:
+A interface principal do projeto é uma aplicação desktop construída com Tkinter. Para executá-la, utilize:
 
 ```bash
 python app.py
 ```
 
-O servidor ficará disponível em `http://localhost:8000`. A aplicação mantém o progresso do jogador em `dados_jogador.pkl`.
+Isso abrirá a janela "Laboratório de Quimeras", permitindo selecionar criaturas, realizar fusões e acompanhar novas descobertas.
 
 ## Executando os testes
 
