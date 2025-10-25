@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, List
+from pathlib import Path
+from typing import Dict, Iterable, List, Sequence
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,6 +34,8 @@ class ChimeraDesktopApp(tk.Tk):
 
         self.gerenciador = GerenciadorEntidades()
         self.jogador = Jogador(jogador_padrao)
+
+        self._imagem_cache: Dict[str, tk.PhotoImage] = {}
 
         self.mensagem_var = tk.StringVar()
         self.novas_var = tk.StringVar()
@@ -68,13 +71,14 @@ class ChimeraDesktopApp(tk.Tk):
         selecao_frame = ttk.Frame(main_frame)
         selecao_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.lista_criaturas = tk.Listbox(
+        self.lista_criaturas = ttk.Treeview(
             selecao_frame,
-            selectmode=tk.MULTIPLE,
-            exportselection=False,
+            show="tree",
+            selectmode="extended",
             height=12,
         )
         self.lista_criaturas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.lista_criaturas.column("#0", anchor=tk.W, width=240)
 
         scrollbar = ttk.Scrollbar(
             selecao_frame, orient=tk.VERTICAL, command=self.lista_criaturas.yview
@@ -82,8 +86,7 @@ class ChimeraDesktopApp(tk.Tk):
         scrollbar.pack(side=tk.LEFT, fill=tk.Y)
         self.lista_criaturas.config(yscrollcommand=scrollbar.set)
 
-        for nome in self.gerenciador.listar_nomes():
-            self.lista_criaturas.insert(tk.END, nome)
+        self._carregar_criaturas_iniciais()
 
         botoes_frame = ttk.Frame(main_frame, padding=(0, 12))
         botoes_frame.pack(fill=tk.X)
@@ -98,7 +101,7 @@ class ChimeraDesktopApp(tk.Tk):
         limpar_btn = ttk.Button(
             botoes_frame,
             text="Limpar Seleção",
-            command=lambda: self.lista_criaturas.selection_clear(0, tk.END),
+            command=self._limpar_selecao,
         )
         limpar_btn.pack(side=tk.LEFT, padx=(8, 0))
 
@@ -126,15 +129,21 @@ class ChimeraDesktopApp(tk.Tk):
         )
         descobertas_frame.pack(fill=tk.BOTH, expand=True, pady=(16, 0))
 
-        self.lista_descobertas = tk.Listbox(descobertas_frame, height=8)
+        self.lista_descobertas = ttk.Treeview(
+            descobertas_frame,
+            show="tree",
+            height=8,
+        )
         self.lista_descobertas.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
+        self.lista_descobertas.column("#0", anchor=tk.W)
 
     # ------------------------------------------------------------------
     # Lógica da aplicação
     # ------------------------------------------------------------------
     def realizar_fusao(self):
         selecionadas = [
-            self.lista_criaturas.get(i) for i in self.lista_criaturas.curselection()
+            self.lista_criaturas.item(item, "text")
+            for item in self.lista_criaturas.selection()
         ]
 
         resultado = self._processar_fusao(selecionadas)
@@ -143,6 +152,7 @@ class ChimeraDesktopApp(tk.Tk):
         if resultado.novas_criaturas:
             nomes = ", ".join(entidade._nome for entidade in resultado.novas_criaturas)
             self.novas_var.set(nomes)
+            self._incluir_criaturas_disponiveis(resultado.novas_criaturas)
         else:
             self.novas_var.set("Nenhuma nova criatura foi descoberta desta vez.")
 
@@ -175,9 +185,79 @@ class ChimeraDesktopApp(tk.Tk):
 
     def _atualizar_descobertas(self):
         nomes = _ordenar_nomes(self.jogador.criaturas_descobertas)
-        self.lista_descobertas.delete(0, tk.END)
+        for item in self.lista_descobertas.get_children():
+            self.lista_descobertas.delete(item)
+
+        entidades: List[Entidade] = []
         for nome in nomes:
-            self.lista_descobertas.insert(tk.END, nome)
+            encontradas = self.gerenciador.get([nome])
+            if not encontradas:
+                continue
+            entidade = encontradas[0]
+            entidades.append(entidade)
+            iid = self._criar_iid("descoberta", nome)
+            imagem = self._obter_imagem(entidade)
+            self.lista_descobertas.insert("", tk.END, iid=iid, text=nome, image=imagem)
+
+        if entidades:
+            self._incluir_criaturas_disponiveis(entidades)
+
+    # ------------------------------------------------------------------
+    # Métodos auxiliares
+    # ------------------------------------------------------------------
+    def _criar_iid(self, prefixo: str, nome: str) -> str:
+        normalizado = nome.replace(" ", "_")
+        return f"{prefixo}::{normalizado}"
+
+    def _carregar_criaturas_iniciais(self):
+        iniciais = self.gerenciador.listar_basicas()
+        for entidade in iniciais:
+            self._adicionar_criatura_disponivel(entidade)
+
+    def _incluir_criaturas_disponiveis(
+        self, entidades: Sequence[Entidade]
+    ):
+        for entidade in entidades:
+            self._adicionar_criatura_disponivel(entidade)
+
+    def _adicionar_criatura_disponivel(self, entidade: Entidade):
+        nome = entidade._nome
+        iid = self._criar_iid("criatura", nome)
+        if self.lista_criaturas.exists(iid):
+            return
+
+        imagem = self._obter_imagem(entidade)
+        nomes_existentes = [
+            self.lista_criaturas.item(item, "text")
+            for item in self.lista_criaturas.get_children()
+        ]
+        for indice, nome_existente in enumerate(nomes_existentes):
+            if nome < nome_existente:
+                self.lista_criaturas.insert(
+                    "", indice, iid=iid, text=nome, image=imagem
+                )
+                break
+        else:
+            self.lista_criaturas.insert("", tk.END, iid=iid, text=nome, image=imagem)
+
+    def _obter_imagem(self, entidade: Entidade):
+        caminho = entidade.caminho_imagem
+        if not caminho:
+            return None
+
+        caminho_relativo = Path(caminho)
+        if not caminho_relativo.is_absolute():
+            caminho_relativo = Path(__file__).parent / caminho_relativo
+
+        chave_cache = str(caminho_relativo.resolve())
+        if chave_cache not in self._imagem_cache and caminho_relativo.exists():
+            self._imagem_cache[chave_cache] = tk.PhotoImage(file=str(caminho_relativo))
+        return self._imagem_cache.get(chave_cache)
+
+    def _limpar_selecao(self):
+        selecionados = self.lista_criaturas.selection()
+        if selecionados:
+            self.lista_criaturas.selection_remove(selecionados)
 
 
 if __name__ == "__main__":  # pragma: no cover
