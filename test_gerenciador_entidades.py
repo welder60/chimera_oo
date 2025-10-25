@@ -41,9 +41,24 @@ class TestGerenciadorEntidades(unittest.TestCase):
         self.assertEqual(len(resultado), 1)
         self.assertEqual(resultado[0]._nome, "Dragão")
 
+    def test_listar_basicas(self):
+        """Somente criaturas com uma tag devem compor a lista inicial."""
+        basicas = [entidade._nome for entidade in self.gerenciador_entidades.listar_basicas()]
+        self.assertListEqual(sorted(basicas), ["Ferro", "Humano", "Peixe", "Touro"])
+
     def test_lista_predefinida(self):
         """As criaturas pré-definidas devem estar disponíveis ao iniciar o gerenciador"""
-        nomes_esperados = {"Humano", "Touro", "Minotauro", "Minotauro de Ferro", "Peixe", "Sereia", "Ferro"}
+        nomes_esperados = {
+            "Humano",
+            "Touro",
+            "Minotauro",
+            "Minotauro de Ferro",
+            "Peixe",
+            "Sereia",
+            "Ferro",
+            "Sereia de Ferro",
+            "Quimera Marinha",
+        }
         nomes_carregados = {entidade._nome for entidade in self.gerenciador_entidades._entidades}
         for nome in nomes_esperados:
             self.assertIn(nome, nomes_carregados)
@@ -82,6 +97,25 @@ class TestGerenciadorEntidades(unittest.TestCase):
         self.assertIn(self.gerenciador_entidades.get(["Minotauro"])[0], resultado)
         # Minotauro de Ferro não deve aparecer (tem tag extra)
         self.assertNotIn(self.gerenciador_entidades.get(["Minotauro de Ferro"])[0], resultado)
+
+    def test_novas_fusoes_disponiveis(self):
+        """Novas entidades derivadas de fusões devem estar cadastradas."""
+
+        resultado_sereia_ferro = self.gerenciador_entidades.cruzar(
+            self.gerenciador_entidades.get(["Sereia", "Ferro"])
+        )
+        self.assertIn(
+            self.gerenciador_entidades.get(["Sereia de Ferro"])[0],
+            resultado_sereia_ferro,
+        )
+
+        resultado_minotauro_peixe = self.gerenciador_entidades.cruzar(
+            self.gerenciador_entidades.get(["Minotauro", "Peixe"])
+        )
+        self.assertIn(
+            self.gerenciador_entidades.get(["Quimera Marinha"])[0],
+            resultado_minotauro_peixe,
+        )
 
     def test_evolucoes_derivacoes(self):
         """

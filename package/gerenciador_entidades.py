@@ -3,13 +3,39 @@ from package.entidade import Entidade
 
 
 PREDEFINED_ENTIDADES = [
-    {"nome": "Humano", "tags": ["HUMANOIDE"]},
-    {"nome": "Touro", "tags": ["CHIFRES"]},
-    {"nome": "Minotauro", "tags": ["HUMANOIDE", "CHIFRES"]},
-    {"nome": "Minotauro de Ferro", "tags": ["HUMANOIDE", "CHIFRES", "FERRO"]},
-    {"nome": "Peixe", "tags": ["AQUATICO"]},
-    {"nome": "Sereia", "tags": ["HUMANOIDE", "AQUATICO"]},
-    {"nome": "Ferro", "tags": ["FERRO"]},
+    {
+        "nome": "Humano",
+        "tags": ["HUMANOIDE"],
+        "imagem": "assets/humano.ppm",
+    },
+    {"nome": "Touro", "tags": ["CHIFRES"], "imagem": "assets/touro.ppm"},
+    {
+        "nome": "Minotauro",
+        "tags": ["HUMANOIDE", "CHIFRES"],
+        "imagem": "assets/minotauro.ppm",
+    },
+    {
+        "nome": "Minotauro de Ferro",
+        "tags": ["HUMANOIDE", "CHIFRES", "FERRO"],
+        "imagem": "assets/minotauro_de_ferro.ppm",
+    },
+    {"nome": "Peixe", "tags": ["AQUATICO"], "imagem": "assets/peixe.ppm"},
+    {
+        "nome": "Sereia",
+        "tags": ["HUMANOIDE", "AQUATICO"],
+        "imagem": "assets/sereia.ppm",
+    },
+    {"nome": "Ferro", "tags": ["FERRO"], "imagem": "assets/ferro.ppm"},
+    {
+        "nome": "Sereia de Ferro",
+        "tags": ["HUMANOIDE", "AQUATICO", "FERRO"],
+        "imagem": "assets/sereia_de_ferro.ppm",
+    },
+    {
+        "nome": "Quimera Marinha",
+        "tags": ["HUMANOIDE", "CHIFRES", "AQUATICO"],
+        "imagem": "assets/quimera_marinha.ppm",
+    },
 ]
 
 
@@ -21,7 +47,9 @@ class GerenciadorEntidades:
 
     def _carregar_predefinidas(self):
         for dados in PREDEFINED_ENTIDADES:
-            entidade = Entidade(dados["nome"], dados["tags"])
+            entidade = Entidade(
+                dados["nome"], dados["tags"], dados.get("imagem")
+            )
             self._entidades.append(entidade)
 
     def adicionar(self, entidade: Entidade):
@@ -33,7 +61,10 @@ class GerenciadorEntidades:
             for linha in leitor:
                 nome = linha["nome"].strip()
                 tags = [t.strip() for t in linha["tags"].split(";")]
-                entidade = Entidade(nome, tags)
+                caminho_imagem = linha.get("imagem")
+                if caminho_imagem is not None:
+                    caminho_imagem = caminho_imagem.strip() or None
+                entidade = Entidade(nome, tags, caminho_imagem)
                 self.adicionar(entidade)
 
     def get(self, nomes):
@@ -46,6 +77,12 @@ class GerenciadorEntidades:
 
     def listar_nomes(self):
         return sorted(entidade._nome for entidade in self._entidades)
+
+    def listar_basicas(self):
+        return sorted(
+            (entidade for entidade in self._entidades if len(entidade._tags) == 1),
+            key=lambda entidade: entidade._nome,
+        )
 
     def cruzar(self, entidades):
         resultado = []
