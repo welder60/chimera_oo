@@ -6,35 +6,35 @@ PREDEFINED_ENTIDADES = [
     {
         "nome": "Humano",
         "tags": ["HUMANOIDE"],
-        "imagem": "assets/humano.ppm",
+        "imagem": "assets/humano.png",
     },
-    {"nome": "Touro", "tags": ["CHIFRES"], "imagem": "assets/touro.ppm"},
+    {"nome": "Touro", "tags": ["CHIFRES"], "imagem": "assets/touro.png"},
     {
         "nome": "Minotauro",
         "tags": ["HUMANOIDE", "CHIFRES"],
-        "imagem": "assets/minotauro.ppm",
+        "imagem": "assets/minotauro.png",
     },
     {
         "nome": "Minotauro de Ferro",
         "tags": ["HUMANOIDE", "CHIFRES", "FERRO"],
-        "imagem": "assets/minotauro_de_ferro.ppm",
+        "imagem": "assets/minotauro_de_ferro.png",
     },
-    {"nome": "Peixe", "tags": ["AQUATICO"], "imagem": "assets/peixe.ppm"},
+    {"nome": "Peixe", "tags": ["AQUATICO"], "imagem": "assets/peixe.png"},
     {
         "nome": "Sereia",
         "tags": ["HUMANOIDE", "AQUATICO"],
-        "imagem": "assets/sereia.ppm",
+        "imagem": "assets/sereia.png",
     },
-    {"nome": "Ferro", "tags": ["FERRO"], "imagem": "assets/ferro.ppm"},
+    {"nome": "Ferro", "tags": ["FERRO"], "imagem": "assets/ferro.png"},
     {
         "nome": "Sereia de Ferro",
         "tags": ["HUMANOIDE", "AQUATICO", "FERRO"],
-        "imagem": "assets/sereia_de_ferro.ppm",
+        "imagem": "assets/sereia_de_ferro.png",
     },
     {
         "nome": "Quimera Marinha",
         "tags": ["HUMANOIDE", "CHIFRES", "AQUATICO"],
-        "imagem": "assets/quimera_marinha.ppm",
+        "imagem": "assets/quimera_marinha.png",
     },
 ]
 

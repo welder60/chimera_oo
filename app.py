@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from PIL import Image, ImageTk
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
@@ -40,6 +42,10 @@ class ChimeraDesktopApp(tk.Tk):
         self.mensagem_var = tk.StringVar()
         self.novas_var = tk.StringVar()
 
+        style = ttk.Style(self)
+        style.configure("Card.TFrame", background="#f0f0f0")
+        style.configure("Selecionado.TFrame", background="#c1e1c1")
+
         self._montar_interface()
         self._atualizar_descobertas()
 
@@ -68,93 +74,63 @@ class ChimeraDesktopApp(tk.Tk):
         )
         descricao.pack(fill=tk.X)
 
+        # --- Novo container de seleção em grade ---
         selecao_frame = ttk.Frame(main_frame)
         selecao_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.lista_criaturas = ttk.Treeview(
-            selecao_frame,
-            show="tree",
-            selectmode="extended",
-            height=12,
-        )
-        self.lista_criaturas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.lista_criaturas.column("#0", anchor=tk.W, width=240)
+        self.canvas = tk.Canvas(selecao_frame)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
         scrollbar = ttk.Scrollbar(
-            selecao_frame, orient=tk.VERTICAL, command=self.lista_criaturas.yview
+            selecao_frame, orient=tk.VERTICAL, command=self.canvas.yview
         )
         scrollbar.pack(side=tk.LEFT, fill=tk.Y)
-        self.lista_criaturas.config(yscrollcommand=scrollbar.set)
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        self.grid_frame = ttk.Frame(self.canvas)
+        self.canvas.create_window((0, 0), window=self.grid_frame, anchor="nw")
+
+        self.grid_frame.bind(
+            "<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        self.criaturas_widgets: Dict[str, ttk.Frame] = {}
+        self.criaturas_selecionadas: set[str] = set()
 
         self._carregar_criaturas_iniciais()
 
         botoes_frame = ttk.Frame(main_frame, padding=(0, 12))
         botoes_frame.pack(fill=tk.X)
 
-        fusao_btn = ttk.Button(
-            botoes_frame,
-            text="Realizar Fusão",
-            command=self.realizar_fusao,
-        )
+        fusao_btn = ttk.Button(botoes_frame, text="Realizar Fusão", command=self.realizar_fusao)
         fusao_btn.pack(side=tk.LEFT)
 
-        limpar_btn = ttk.Button(
-            botoes_frame,
-            text="Limpar Seleção",
-            command=self._limpar_selecao,
-        )
+        limpar_btn = ttk.Button(botoes_frame, text="Limpar Seleção", command=self._limpar_selecao)
         limpar_btn.pack(side=tk.LEFT, padx=(8, 0))
 
-        mensagem_lbl = ttk.Label(
-            main_frame,
-            textvariable=self.mensagem_var,
-            foreground="#1f3c88",
-            wraplength=600,
-        )
+        mensagem_lbl = ttk.Label(main_frame, textvariable=self.mensagem_var, foreground="#1f3c88", wraplength=600)
         mensagem_lbl.pack(fill=tk.X, pady=(8, 0))
 
         novas_frame = ttk.LabelFrame(main_frame, text="Novas criaturas descobertas")
         novas_frame.pack(fill=tk.X, pady=(16, 0))
 
-        novas_lbl = ttk.Label(
-            novas_frame,
-            textvariable=self.novas_var,
-            foreground="#0a8754",
-            wraplength=600,
-        )
-        novas_lbl.pack(fill=tk.X, padx=8, pady=8)
-
-        descobertas_frame = ttk.LabelFrame(
-            main_frame, text="Códex de criaturas descobertas"
-        )
-        descobertas_frame.pack(fill=tk.BOTH, expand=True, pady=(16, 0))
-
-        self.lista_descobertas = ttk.Treeview(
-            descobertas_frame,
-            show="tree",
-            height=8,
-        )
-        self.lista_descobertas.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
-        self.lista_descobertas.column("#0", anchor=tk.W)
+        # Substituímos o Label por um frame em grid
+        self.novas_frame = ttk.Frame(novas_frame)
+        self.novas_frame.pack(fill=tk.X, padx=8, pady=8)
 
     # ------------------------------------------------------------------
     # Lógica da aplicação
     # ------------------------------------------------------------------
     def realizar_fusao(self):
-        selecionadas = [
-            self.lista_criaturas.item(item, "text")
-            for item in self.lista_criaturas.selection()
-        ]
-
+        selecionadas = list(self.criaturas_selecionadas)
         resultado = self._processar_fusao(selecionadas)
         self.mensagem_var.set(resultado.mensagem)
 
         if resultado.novas_criaturas:
-            nomes = ", ".join(entidade._nome for entidade in resultado.novas_criaturas)
-            self.novas_var.set(nomes)
             self._incluir_criaturas_disponiveis(resultado.novas_criaturas)
+            self._mostrar_novas_criaturas(resultado.novas_criaturas)
         else:
-            self.novas_var.set("Nenhuma nova criatura foi descoberta desta vez.")
+            self._mostrar_novas_criaturas([])
 
         self._atualizar_descobertas()
 
@@ -185,8 +161,6 @@ class ChimeraDesktopApp(tk.Tk):
 
     def _atualizar_descobertas(self):
         nomes = _ordenar_nomes(self.jogador.criaturas_descobertas)
-        for item in self.lista_descobertas.get_children():
-            self.lista_descobertas.delete(item)
 
         entidades: List[Entidade] = []
         for nome in nomes:
@@ -197,8 +171,7 @@ class ChimeraDesktopApp(tk.Tk):
             entidades.append(entidade)
             iid = self._criar_iid("descoberta", nome)
             imagem = self._obter_imagem(entidade)
-            self.lista_descobertas.insert("", tk.END, iid=iid, text=nome, image=imagem)
-
+            
         if entidades:
             self._incluir_criaturas_disponiveis(entidades)
 
@@ -213,32 +186,68 @@ class ChimeraDesktopApp(tk.Tk):
         iniciais = self.gerenciador.listar_basicas()
         for entidade in iniciais:
             self._adicionar_criatura_disponivel(entidade)
-
+        self._renderizar_criaturas()
+        
     def _incluir_criaturas_disponiveis(
         self, entidades: Sequence[Entidade]
     ):
         for entidade in entidades:
             self._adicionar_criatura_disponivel(entidade)
+        self._renderizar_criaturas()
+
 
     def _adicionar_criatura_disponivel(self, entidade: Entidade):
         nome = entidade._nome
-        iid = self._criar_iid("criatura", nome)
-        if self.lista_criaturas.exists(iid):
+        if nome in self.criaturas_widgets:
             return
 
         imagem = self._obter_imagem(entidade)
-        nomes_existentes = [
-            self.lista_criaturas.item(item, "text")
-            for item in self.lista_criaturas.get_children()
-        ]
-        for indice, nome_existente in enumerate(nomes_existentes):
-            if nome < nome_existente:
-                self.lista_criaturas.insert(
-                    "", indice, iid=iid, text=nome, image=imagem
-                )
-                break
-        else:
-            self.lista_criaturas.insert("", tk.END, iid=iid, text=nome, image=imagem)
+
+        frame = ttk.Frame(self.grid_frame, borderwidth=2, relief="flat")
+        label_img = ttk.Label(frame, image=imagem)
+        label_img.image = imagem
+        label_img.pack()
+        label_nome = ttk.Label(frame, text=nome)
+        label_nome.pack()
+
+        def toggle_selecao(event=None, nome=nome, frame=frame):
+            if nome in self.criaturas_selecionadas:
+                self.criaturas_selecionadas.remove(nome)
+                frame.config(style="Card.TFrame")
+            else:
+                self.criaturas_selecionadas.add(nome)
+                frame.config(style="Selecionado.TFrame")
+
+        frame.bind("<Button-1>", toggle_selecao)
+        label_img.bind("<Button-1>", toggle_selecao)
+        label_nome.bind("<Button-1>", toggle_selecao)
+
+        self.criaturas_widgets[nome] = frame
+    def _mostrar_novas_criaturas(self, criaturas: Sequence[Entidade]):
+        # Limpa o conteúdo anterior
+        for widget in self.novas_frame.winfo_children():
+            widget.destroy()
+
+        if not criaturas:
+            ttk.Label(
+                self.novas_frame,
+                text="Nenhuma nova criatura foi descoberta desta vez.",
+                foreground="#888",
+            ).pack()
+            return
+
+        colunas = 4
+        for i, entidade in enumerate(criaturas):
+            nome = entidade._nome
+            imagem = self._obter_imagem(entidade)
+
+            frame = ttk.Frame(self.novas_frame, borderwidth=1, relief="solid", padding=4)
+            label_img = ttk.Label(frame, image=imagem)
+            label_img.image = imagem
+            label_img.pack()
+            ttk.Label(frame, text=nome).pack()
+
+            frame.grid(row=i // colunas, column=i % colunas, padx=8, pady=8)
 
     def _obter_imagem(self, entidade: Entidade):
         caminho = entidade.caminho_imagem
@@ -251,14 +260,26 @@ class ChimeraDesktopApp(tk.Tk):
 
         chave_cache = str(caminho_relativo.resolve())
         if chave_cache not in self._imagem_cache and caminho_relativo.exists():
-            self._imagem_cache[chave_cache] = tk.PhotoImage(file=str(caminho_relativo))
+            imagem = Image.open(caminho_relativo)
+            imagem = imagem.resize((64, 64), Image.LANCZOS)
+            self._imagem_cache[chave_cache] = ImageTk.PhotoImage(imagem)
+
         return self._imagem_cache.get(chave_cache)
 
-    def _limpar_selecao(self):
-        selecionados = self.lista_criaturas.selection()
-        if selecionados:
-            self.lista_criaturas.selection_remove(selecionados)
+    def _renderizar_criaturas(self):
+        # Remove widgets visuais antigos, mas não destrói os frames guardados
+        for widget in self.grid_frame.winfo_children():
+            widget.grid_forget()
 
+        colunas = 4
+        for i, (nome, frame) in enumerate(sorted(self.criaturas_widgets.items())):
+            frame.grid(row=i // colunas, column=i % colunas, padx=8, pady=8)
+
+    def _limpar_selecao(self):
+        for nome in list(self.criaturas_selecionadas):
+            frame = self.criaturas_widgets[nome]
+            frame.config(style="Card.TFrame")
+        self.criaturas_selecionadas.clear()
 
 if __name__ == "__main__":  # pragma: no cover
     app = ChimeraDesktopApp()
