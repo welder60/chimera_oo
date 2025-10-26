@@ -30,7 +30,7 @@ class ChimeraDesktopApp(tk.Tk):
 
     def __init__(self, jogador_padrao: str = "Convidado"):
         super().__init__()
-        self.title("Laboratório de Quimeras")
+        self.title("Chimera OO")
         self.geometry("720x480")
         self.minsize(640, 420)
 
@@ -58,7 +58,7 @@ class ChimeraDesktopApp(tk.Tk):
 
         titulo = ttk.Label(
             main_frame,
-            text="Bem-vindo ao Laboratório de Quimeras",
+            text="Chimera OO",
             font=("Helvetica", 16, "bold"),
         )
         titulo.pack(anchor=tk.W)
@@ -114,9 +114,23 @@ class ChimeraDesktopApp(tk.Tk):
         novas_frame = ttk.LabelFrame(main_frame, text="Novas criaturas descobertas")
         novas_frame.pack(fill=tk.X, pady=(16, 0))
 
-        # Substituímos o Label por um frame em grid
-        self.novas_frame = ttk.Frame(novas_frame)
-        self.novas_frame.pack(fill=tk.X, padx=8, pady=8)
+        novas_frame = ttk.LabelFrame(main_frame, text="Novas criaturas descobertas")
+        novas_frame.pack(fill=tk.BOTH, expand=True, pady=(16, 0))
+
+        # Frame com rolagem
+        canvas_novas = tk.Canvas(novas_frame, height=160)
+        scrollbar_novas = ttk.Scrollbar(novas_frame, orient=tk.HORIZONTAL, command=canvas_novas.xview)
+        scrollbar_novas.pack(side=tk.BOTTOM, fill=tk.X)
+
+        canvas_novas.configure(xscrollcommand=scrollbar_novas.set)
+        canvas_novas.pack(fill=tk.BOTH, expand=True)
+
+        self.novas_frame = ttk.Frame(canvas_novas)
+        canvas_novas.create_window((0, 0), window=self.novas_frame, anchor="nw")
+
+        self.novas_frame.bind(
+            "<Configure>", lambda e: canvas_novas.configure(scrollregion=canvas_novas.bbox("all"))
+        )
 
     # ------------------------------------------------------------------
     # Lógica da aplicação
@@ -133,6 +147,7 @@ class ChimeraDesktopApp(tk.Tk):
             self._mostrar_novas_criaturas([])
 
         self._atualizar_descobertas()
+        self._limpar_selecao()
 
     def _processar_fusao(self, selecionadas: List[str]) -> FusaResultado:
         if len(selecionadas) < 2:
@@ -261,7 +276,7 @@ class ChimeraDesktopApp(tk.Tk):
         chave_cache = str(caminho_relativo.resolve())
         if chave_cache not in self._imagem_cache and caminho_relativo.exists():
             imagem = Image.open(caminho_relativo)
-            imagem = imagem.resize((64, 64), Image.LANCZOS)
+            imagem = imagem.resize((80, 80), Image.LANCZOS)
             self._imagem_cache[chave_cache] = ImageTk.PhotoImage(imagem)
 
         return self._imagem_cache.get(chave_cache)
@@ -271,7 +286,7 @@ class ChimeraDesktopApp(tk.Tk):
         for widget in self.grid_frame.winfo_children():
             widget.grid_forget()
 
-        colunas = 4
+        colunas = 6
         for i, (nome, frame) in enumerate(sorted(self.criaturas_widgets.items())):
             frame.grid(row=i // colunas, column=i % colunas, padx=8, pady=8)
 

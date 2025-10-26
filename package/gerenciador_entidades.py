@@ -3,40 +3,26 @@ from package.entidade import Entidade
 
 
 PREDEFINED_ENTIDADES = [
-    {
-        "nome": "Humano",
-        "tags": ["HUMANOIDE"],
-        "imagem": "assets/humano.png",
-    },
-    {"nome": "Touro", "tags": ["CHIFRES"], "imagem": "assets/touro.png"},
-    {
-        "nome": "Minotauro",
-        "tags": ["HUMANOIDE", "CHIFRES"],
-        "imagem": "assets/minotauro.png",
-    },
-    {
-        "nome": "Minotauro de Ferro",
-        "tags": ["HUMANOIDE", "CHIFRES", "FERRO"],
-        "imagem": "assets/minotauro_de_ferro.png",
-    },
-    {"nome": "Peixe", "tags": ["AQUATICO"], "imagem": "assets/peixe.png"},
-    {
-        "nome": "Sereia",
-        "tags": ["HUMANOIDE", "AQUATICO"],
-        "imagem": "assets/sereia.png",
-    },
-    {"nome": "Ferro", "tags": ["FERRO"], "imagem": "assets/ferro.png"},
-    {
-        "nome": "Sereia de Ferro",
-        "tags": ["HUMANOIDE", "AQUATICO", "FERRO"],
-        "imagem": "assets/sereia_de_ferro.png",
-    },
-    {
-        "nome": "Quimera Marinha",
-        "tags": ["HUMANOIDE", "CHIFRES", "AQUATICO"],
-        "imagem": "assets/quimera_marinha.png",
-    },
+  {"nome": "ave", "tags": ["AVE"], "imagem": "assets/ave.png"},
+  {"nome": "cavalo", "tags": ["CAVALO"], "imagem": "assets/cavalo.png"},
+  {"nome": "centauro", "tags": ["HUMANO", "CAVALO"], "imagem": "assets/centauro.png"},
+  {"nome": "esfinge", "tags": ["HUMANO", "LEAO", "AVE"], "imagem": "assets/esfinge.png"},
+  {"nome": "grifo", "tags": ["AVE", "LEAO"], "imagem": "assets/grifo.png"},
+  {"nome": "hipocampo", "tags": ["CAVALO", "PEIXE"], "imagem": "assets/hipocampo.png"},
+  {"nome": "hipogrifo", "tags": ["CAVALO", "AVE", "LEAO"], "imagem": "assets/hipogrifo.png"},
+  {"nome": "humano", "tags": ["HUMANO"], "imagem": "assets/humano.png"},
+  {"nome": "leao", "tags": ["LEAO"], "imagem": "assets/leao.png"},
+  {"nome": "minotauro", "tags": ["CHIFRES", "HUMANO"], "imagem": "assets/minotauro.png"},
+  {"nome": "minotauro alado", "tags": ["CHIFRES", "HUMANO", "AVE"], "imagem": "assets/minotauro_alado.png"},
+  {"nome": "pegasus", "tags": ["CAVALO", "AVE"], "imagem": "assets/pegasus.png"},
+  {"nome": "peixe", "tags": ["PEIXE"], "imagem": "assets/peixe.png"},
+  {"nome": "sereia", "tags": ["HUMANO", "PEIXE"], "imagem": "assets/sereia.png"},
+  {"nome": "touro", "tags": ["CHIFRES"], "imagem": "assets/touro.png"},
+  {"nome": "unicornio", "tags": ["CAVALO", "CHIFRES"], "imagem": "assets/unicornio.png"},
+  {"nome": "unicornio alado", "tags": ["CAVALO", "CHIFRES", "AVE"], "imagem": "assets/unicornio_alado.png"},
+  {"nome": "anjo", "tags": ["HUMANO", "AVE"], "imagem": "assets/anjo.png"}
 ]
+
 
 
 class GerenciadorEntidades:
