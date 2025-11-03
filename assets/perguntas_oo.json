@@ -1,0 +1,62 @@
+[
+  {
+    "pergunta": "Qual princípio da programação orientada a objetos incentiva o uso de uma interface comum para diferentes implementações?",
+    "alternativas": [
+      "Abstração",
+      "Herança",
+      "Polimorfismo",
+      "Encapsulamento"
+    ],
+    "correta": 2
+  },
+  {
+    "pergunta": "Qual palavra-chave em Python é usada para definir um método que pertence à classe e não a uma instância?",
+    "alternativas": [
+      "self",
+      "@staticmethod",
+      "@classmethod",
+      "__init__"
+    ],
+    "correta": 2
+  },
+  {
+    "pergunta": "Encapsulamento em POO está relacionado a quê?",
+    "alternativas": [
+      "Combinar dados e comportamentos relacionados",
+      "Dividir um problema em subproblemas menores",
+      "Permitir que múltiplas classes herdem da mesma base",
+      "Esconder detalhes de implementação e expor apenas o necessário"
+    ],
+    "correta": 3
+  },
+  {
+    "pergunta": "O que é herança na programação orientada a objetos?",
+    "alternativas": [
+      "A capacidade de uma classe possuir múltiplos construtores",
+      "A habilidade de criar novas classes baseadas em classes existentes",
+      "Um mecanismo para executar métodos de forma assíncrona",
+      "A aplicação de funções matemáticas em objetos"
+    ],
+    "correta": 1
+  },
+  {
+    "pergunta": "Qual afirmação descreve melhor o conceito de composição?",
+    "alternativas": [
+      "Uma classe derivada altera o comportamento da classe base",
+      "Uma classe reutiliza atributos e métodos de outra por meio de herança",
+      "Uma classe é formada por outras classes que colaboram entre si",
+      "Uma classe não pode ser instanciada diretamente"
+    ],
+    "correta": 2
+  },
+  {
+    "pergunta": "Quando um método é sobrescrito em uma subclasse, o que acontece ao método original?",
+    "alternativas": [
+      "Ele é removido automaticamente da classe base",
+      "Ele permanece na classe base e pode ser acessado via super()",
+      "Ele gera um erro de compilação",
+      "Ele é renomeado automaticamente pelo interpretador"
+    ],
+    "correta": 1
+  }
+]
