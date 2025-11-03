@@ -41,6 +41,7 @@ class ChimeraDesktopApp(tk.Tk):
 
         self.mensagem_var = tk.StringVar()
         self.novas_var = tk.StringVar()
+        self.contador_var = tk.StringVar()
 
         style = ttk.Style(self)
         style.configure("Card.TFrame", background="#f0f0f0")
@@ -73,6 +74,13 @@ class ChimeraDesktopApp(tk.Tk):
             padding=(0, 8, 0, 16),
         )
         descricao.pack(fill=tk.X)
+
+        contador_lbl = ttk.Label(
+            main_frame,
+            textvariable=self.contador_var,
+            font=("Helvetica", 11, "bold"),
+        )
+        contador_lbl.pack(anchor=tk.W, pady=(0, 12))
 
         # --- Novo container de seleção em grade ---
         selecao_frame = ttk.Frame(main_frame)
@@ -178,17 +186,21 @@ class ChimeraDesktopApp(tk.Tk):
         nomes = _ordenar_nomes(self.jogador.criaturas_descobertas)
 
         entidades: List[Entidade] = []
+        descobertas_validas = 0
         for nome in nomes:
             encontradas = self.gerenciador.get([nome])
             if not encontradas:
                 continue
             entidade = encontradas[0]
             entidades.append(entidade)
+            descobertas_validas += 1
             iid = self._criar_iid("descoberta", nome)
             imagem = self._obter_imagem(entidade)
-            
+
         if entidades:
             self._incluir_criaturas_disponiveis(entidades)
+
+        self._atualizar_contador(descobertas_validas)
 
     # ------------------------------------------------------------------
     # Métodos auxiliares
@@ -295,6 +307,13 @@ class ChimeraDesktopApp(tk.Tk):
             frame = self.criaturas_widgets[nome]
             frame.config(style="Card.TFrame")
         self.criaturas_selecionadas.clear()
+
+    def _atualizar_contador(self, descobertas: int):
+        total = len(self.gerenciador.listar_nomes())
+        faltam = max(total - descobertas, 0)
+        self.contador_var.set(
+            f"Quimeras descobertas: {descobertas} de {total} (faltam {faltam})"
+        )
 
 if __name__ == "__main__":  # pragma: no cover
     app = ChimeraDesktopApp()
