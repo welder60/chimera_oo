@@ -8,6 +8,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
 
+import json
+import random
+
 import tkinter as tk
 from tkinter import ttk
 
@@ -23,6 +26,9 @@ def _ordenar_nomes(nomes: Iterable[str]) -> List[str]:
 class FusaResultado:
     novas_criaturas: List[Entidade]
     mensagem: str
+
+
+FUSAO_CUSTO_CREDITOS = 1
 
 
 class ChimeraDesktopApp(tk.Tk):
@@ -42,6 +48,15 @@ class ChimeraDesktopApp(tk.Tk):
         self.mensagem_var = tk.StringVar()
         self.novas_var = tk.StringVar()
         self.contador_var = tk.StringVar()
+        self.creditos_var = tk.StringVar()
+
+        self.pergunta_var = tk.StringVar()
+        self.alternativa_var = tk.StringVar()
+        self.quiz_feedback_var = tk.StringVar()
+        self.pergunta_respondida = False
+
+        self.questoes = self._carregar_questoes()
+        self.questao_atual: Dict[str, object] | None = None
 
         style = ttk.Style(self)
         style.configure("Card.TFrame", background="#f0f0f0")
@@ -49,6 +64,8 @@ class ChimeraDesktopApp(tk.Tk):
 
         self._montar_interface()
         self._atualizar_descobertas()
+        self._atualizar_creditos()
+        self._sortear_pergunta()
 
     # ------------------------------------------------------------------
     # Construção da interface
@@ -71,7 +88,7 @@ class ChimeraDesktopApp(tk.Tk):
                 "fusão e descubra novas combinações!"
             ),
             wraplength=600,
-            padding=(0, 8, 0, 16),
+            padding=(0, 8, 0, 12),
         )
         descricao.pack(fill=tk.X)
 
@@ -80,10 +97,27 @@ class ChimeraDesktopApp(tk.Tk):
             textvariable=self.contador_var,
             font=("Helvetica", 11, "bold"),
         )
-        contador_lbl.pack(anchor=tk.W, pady=(0, 12))
+        contador_lbl.pack(anchor=tk.W)
 
-        # --- Novo container de seleção em grade ---
-        selecao_frame = ttk.Frame(main_frame)
+        creditos_lbl = ttk.Label(
+            main_frame,
+            textvariable=self.creditos_var,
+            font=("Helvetica", 11, "bold"),
+            foreground="#1f3c88",
+            padding=(0, 0, 0, 12),
+        )
+        creditos_lbl.pack(anchor=tk.W)
+
+        notebook = ttk.Notebook(main_frame)
+        notebook.pack(fill=tk.BOTH, expand=True)
+
+        fusao_tab = ttk.Frame(notebook)
+        notebook.add(fusao_tab, text="Laboratório de Fusão")
+
+        quiz_tab = ttk.Frame(notebook)
+        notebook.add(quiz_tab, text="Desafios OO")
+
+        selecao_frame = ttk.Frame(fusao_tab)
         selecao_frame.pack(fill=tk.BOTH, expand=True)
 
         self.canvas = tk.Canvas(selecao_frame)
@@ -107,27 +141,34 @@ class ChimeraDesktopApp(tk.Tk):
 
         self._carregar_criaturas_iniciais()
 
-        botoes_frame = ttk.Frame(main_frame, padding=(0, 12))
+        botoes_frame = ttk.Frame(fusao_tab, padding=(0, 12))
         botoes_frame.pack(fill=tk.X)
 
-        fusao_btn = ttk.Button(botoes_frame, text="Realizar Fusão", command=self.realizar_fusao)
+        fusao_btn = ttk.Button(
+            botoes_frame, text="Realizar Fusão", command=self.realizar_fusao
+        )
         fusao_btn.pack(side=tk.LEFT)
 
-        limpar_btn = ttk.Button(botoes_frame, text="Limpar Seleção", command=self._limpar_selecao)
+        limpar_btn = ttk.Button(
+            botoes_frame, text="Limpar Seleção", command=self._limpar_selecao
+        )
         limpar_btn.pack(side=tk.LEFT, padx=(8, 0))
 
-        mensagem_lbl = ttk.Label(main_frame, textvariable=self.mensagem_var, foreground="#1f3c88", wraplength=600)
+        mensagem_lbl = ttk.Label(
+            fusao_tab,
+            textvariable=self.mensagem_var,
+            foreground="#1f3c88",
+            wraplength=600,
+        )
         mensagem_lbl.pack(fill=tk.X, pady=(8, 0))
 
-        novas_frame = ttk.LabelFrame(main_frame, text="Novas criaturas descobertas")
-        novas_frame.pack(fill=tk.X, pady=(16, 0))
-
-        novas_frame = ttk.LabelFrame(main_frame, text="Novas criaturas descobertas")
+        novas_frame = ttk.LabelFrame(fusao_tab, text="Novas criaturas descobertas")
         novas_frame.pack(fill=tk.BOTH, expand=True, pady=(16, 0))
 
-        # Frame com rolagem
         canvas_novas = tk.Canvas(novas_frame, height=160)
-        scrollbar_novas = ttk.Scrollbar(novas_frame, orient=tk.HORIZONTAL, command=canvas_novas.xview)
+        scrollbar_novas = ttk.Scrollbar(
+            novas_frame, orient=tk.HORIZONTAL, command=canvas_novas.xview
+        )
         scrollbar_novas.pack(side=tk.BOTTOM, fill=tk.X)
 
         canvas_novas.configure(xscrollcommand=scrollbar_novas.set)
@@ -137,18 +178,84 @@ class ChimeraDesktopApp(tk.Tk):
         canvas_novas.create_window((0, 0), window=self.novas_frame, anchor="nw")
 
         self.novas_frame.bind(
-            "<Configure>", lambda e: canvas_novas.configure(scrollregion=canvas_novas.bbox("all"))
+            "<Configure>",
+            lambda e: canvas_novas.configure(scrollregion=canvas_novas.bbox("all")),
         )
+
+        quiz_instrucao = ttk.Label(
+            quiz_tab,
+            text=(
+                "Responda às perguntas para ganhar créditos e liberar novas tentativas "
+                "de fusão. Cada resposta correta vale 1 crédito."
+            ),
+            wraplength=520,
+            padding=(0, 12, 0, 8),
+        )
+        quiz_instrucao.pack(anchor=tk.W, fill=tk.X)
+
+        pergunta_lbl = ttk.Label(
+            quiz_tab,
+            textvariable=self.pergunta_var,
+            wraplength=520,
+            font=("Helvetica", 12, "bold"),
+        )
+        pergunta_lbl.pack(anchor=tk.W, fill=tk.X)
+
+        self.alternativas_frame = ttk.Frame(quiz_tab)
+        self.alternativas_frame.pack(anchor=tk.W, fill=tk.X, pady=(8, 12))
+
+        botoes_quiz = ttk.Frame(quiz_tab)
+        botoes_quiz.pack(fill=tk.X, pady=(0, 12))
+
+        responder_btn = ttk.Button(
+            botoes_quiz, text="Responder", command=self._verificar_resposta
+        )
+        responder_btn.pack(side=tk.LEFT)
+
+        proxima_btn = ttk.Button(
+            botoes_quiz, text="Próxima pergunta", command=self._sortear_pergunta
+        )
+        proxima_btn.pack(side=tk.LEFT, padx=(8, 0))
+
+        feedback_lbl = ttk.Label(
+            quiz_tab,
+            textvariable=self.quiz_feedback_var,
+            wraplength=520,
+            foreground="#1f3c88",
+        )
+        feedback_lbl.pack(anchor=tk.W, fill=tk.X)
 
     # ------------------------------------------------------------------
     # Lógica da aplicação
     # ------------------------------------------------------------------
     def realizar_fusao(self):
         selecionadas = list(self.criaturas_selecionadas)
+        if len(selecionadas) < 2:
+            self.mensagem_var.set(
+                "Selecione pelo menos duas criaturas para realizar a fusão."
+            )
+            return
+
+        if not self.jogador.tem_creditos(FUSAO_CUSTO_CREDITOS):
+            self.mensagem_var.set(
+                "Você precisa de créditos para realizar a fusão. Responda às "
+                "perguntas na aba Desafios OO para ganhar créditos. É "
+                f"necessário ao menos {FUSAO_CUSTO_CREDITOS} crédito."
+            )
+            self._mostrar_novas_criaturas([])
+            return
+
         resultado = self._processar_fusao(selecionadas)
         self.mensagem_var.set(resultado.mensagem)
 
         if resultado.novas_criaturas:
+            if not self.jogador.gastar_creditos(FUSAO_CUSTO_CREDITOS):
+                self.mensagem_var.set(
+                    "Não foi possível consumir créditos para realizar a fusão."
+                )
+                self._mostrar_novas_criaturas([])
+                return
+            self._atualizar_creditos()
             self._incluir_criaturas_disponiveis(resultado.novas_criaturas)
             self._mostrar_novas_criaturas(resultado.novas_criaturas)
         else:
@@ -276,6 +383,11 @@ class ChimeraDesktopApp(tk.Tk):
 
             frame.grid(row=i // colunas, column=i % colunas, padx=8, pady=8)
 
+    def _atualizar_creditos(self):
+        self.creditos_var.set(
+            f"Créditos disponíveis: {self.jogador.creditos}"
+        )
+
     def _obter_imagem(self, entidade: Entidade):
         caminho = entidade.caminho_imagem
         if not caminho:
@@ -314,6 +426,107 @@ class ChimeraDesktopApp(tk.Tk):
         self.contador_var.set(
             f"Quimeras descobertas: {descobertas} de {total} (faltam {faltam})"
         )
+
+    # ------------------------------------------------------------------
+    # Sistema de perguntas e respostas
+    # ------------------------------------------------------------------
+    def _carregar_questoes(self) -> List[Dict[str, object]]:
+        caminho = Path(__file__).parent / "assets" / "perguntas_oo.json"
+        if not caminho.exists():
+            return []
+        try:
+            with open(caminho, "r", encoding="utf-8") as arquivo:
+                dados = json.load(arquivo)
+        except (json.JSONDecodeError, OSError):
+            return []
+
+        questoes_validas: List[Dict[str, object]] = []
+        for questao in dados:
+            if not isinstance(questao, dict):
+                continue
+            pergunta = questao.get("pergunta")
+            alternativas = questao.get("alternativas")
+            try:
+                correta = int(questao.get("correta"))
+            except (TypeError, ValueError):
+                continue
+
+            if not pergunta or not isinstance(alternativas, list) or len(alternativas) < 2:
+                continue
+            if not 0 <= correta < len(alternativas):
+                continue
+
+            questoes_validas.append(
+                {
+                    "pergunta": str(pergunta),
+                    "alternativas": [str(opcao) for opcao in alternativas],
+                    "correta": correta,
+                }
+            )
+        return questoes_validas
+
+    def _sortear_pergunta(self):
+        if not getattr(self, "alternativas_frame", None):
+            return
+
+        if not self.questoes:
+            self.questao_atual = None
+            self.pergunta_var.set("Nenhuma pergunta disponível no momento.")
+            self.quiz_feedback_var.set("")
+            self._limpar_alternativas()
+            self.pergunta_respondida = False
+            return
+
+        self.questao_atual = random.choice(self.questoes)
+        self.pergunta_var.set(str(self.questao_atual["pergunta"]))
+        self.quiz_feedback_var.set("")
+        self.pergunta_respondida = False
+        self.alternativa_var.set("")
+        self._exibir_alternativas(self.questao_atual["alternativas"])
+
+    def _exibir_alternativas(self, alternativas: Sequence[str]):
+        self._limpar_alternativas()
+        for indice, alternativa in enumerate(alternativas):
+            ttk.Radiobutton(
+                self.alternativas_frame,
+                text=alternativa,
+                value=str(indice),
+                variable=self.alternativa_var,
+            ).pack(anchor=tk.W, pady=2)
+
+    def _limpar_alternativas(self):
+        if not getattr(self, "alternativas_frame", None):
+            return
+        for widget in self.alternativas_frame.winfo_children():
+            widget.destroy()
+        self.alternativa_var.set("")
+
+    def _verificar_resposta(self):
+        if not self.questao_atual:
+            self.quiz_feedback_var.set("Nenhuma pergunta disponível no momento.")
+            return
+
+        if self.pergunta_respondida:
+            self.quiz_feedback_var.set(
+                "Você já respondeu esta pergunta. Avance para a próxima."
+            )
+            return
+
+        resposta = self.alternativa_var.get()
+        if resposta == "":
+            self.quiz_feedback_var.set("Selecione uma alternativa antes de responder.")
+            return
+
+        correta = str(self.questao_atual["correta"])
+        if resposta == correta:
+            self.pergunta_respondida = True
+            self.jogador.adicionar_creditos(1)
+            self.quiz_feedback_var.set(
+                "Resposta correta! Você ganhou 1 crédito."
+            )
+            self._atualizar_creditos()
+        else:
+            self.quiz_feedback_var.set("Resposta incorreta. Tente novamente.")
 
 if __name__ == "__main__":  # pragma: no cover
     app = ChimeraDesktopApp()
