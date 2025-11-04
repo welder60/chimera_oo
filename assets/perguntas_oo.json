@@ -1,62 +1,202 @@
 [
   {
-    "pergunta": "Qual princípio da programação orientada a objetos incentiva o uso de uma interface comum para diferentes implementações?",
+    "pergunta": "Qual princípio da POO permite tratar objetos de diferentes classes de forma uniforme?",
     "alternativas": [
-      "Abstração",
+      "Encapsulamento",
       "Herança",
       "Polimorfismo",
-      "Encapsulamento"
+      "Abstração"
     ],
     "correta": 2
   },
   {
-    "pergunta": "Qual palavra-chave em Python é usada para definir um método que pertence à classe e não a uma instância?",
+    "pergunta": "Qual palavra-chave é usada em Python para indicar herança?",
     "alternativas": [
-      "self",
-      "@staticmethod",
-      "@classmethod",
-      "__init__"
-    ],
-    "correta": 2
-  },
-  {
-    "pergunta": "Encapsulamento em POO está relacionado a quê?",
-    "alternativas": [
-      "Combinar dados e comportamentos relacionados",
-      "Dividir um problema em subproblemas menores",
-      "Permitir que múltiplas classes herdem da mesma base",
-      "Esconder detalhes de implementação e expor apenas o necessário"
+      "extends",
+      "inherits",
+      "super",
+      "class BaseClass"
     ],
     "correta": 3
   },
   {
-    "pergunta": "O que é herança na programação orientada a objetos?",
+    "pergunta": "O que é um construtor em uma classe?",
     "alternativas": [
-      "A capacidade de uma classe possuir múltiplos construtores",
-      "A habilidade de criar novas classes baseadas em classes existentes",
-      "Um mecanismo para executar métodos de forma assíncrona",
-      "A aplicação de funções matemáticas em objetos"
+      "Um método para deletar objetos",
+      "Um método especial usado para inicializar objetos",
+      "Um atributo privado da classe",
+      "Um tipo de herança múltipla"
     ],
     "correta": 1
   },
   {
-    "pergunta": "Qual afirmação descreve melhor o conceito de composição?",
+    "pergunta": "Qual palavra-chave em Python é usada para acessar métodos e atributos da superclasse?",
     "alternativas": [
-      "Uma classe derivada altera o comportamento da classe base",
-      "Uma classe reutiliza atributos e métodos de outra por meio de herança",
-      "Uma classe é formada por outras classes que colaboram entre si",
-      "Uma classe não pode ser instanciada diretamente"
+      "super",
+      "base",
+      "parent",
+      "main"
+    ],
+    "correta": 0
+  },
+  {
+    "pergunta": "O que o princípio da abstração busca alcançar?",
+    "alternativas": [
+      "Ocultar detalhes complexos e expor apenas o essencial",
+      "Aumentar o número de classes em um projeto",
+      "Duplicar código para facilitar manutenção",
+      "Permitir que uma classe tenha múltiplos pais"
+    ],
+    "correta": 0
+  },
+  {
+    "pergunta": "Em POO, o que significa encapsular dados?",
+    "alternativas": [
+      "Criar classes menores e independentes",
+      "Esconder os dados internos e controlar o acesso através de métodos",
+      "Permitir que todos os atributos sejam públicos",
+      "Remover a herança entre classes"
+    ],
+    "correta": 1
+  },
+  {
+    "pergunta": "Qual princípio da POO permite que uma subclasse herde comportamentos de outra classe?",
+    "alternativas": [
+      "Abstração",
+      "Encapsulamento",
+      "Herança",
+      "Polimorfismo"
     ],
     "correta": 2
   },
   {
-    "pergunta": "Quando um método é sobrescrito em uma subclasse, o que acontece ao método original?",
+    "pergunta": "Em Python, qual método é chamado automaticamente ao criar um objeto?",
     "alternativas": [
-      "Ele é removido automaticamente da classe base",
-      "Ele permanece na classe base e pode ser acessado via super()",
-      "Ele gera um erro de compilação",
-      "Ele é renomeado automaticamente pelo interpretador"
+      "__str__",
+      "__init__",
+      "__main__",
+      "__self__"
     ],
     "correta": 1
+  },
+  {
+    "pergunta": "O que é sobrescrita de método?",
+    "alternativas": [
+      "Definir o mesmo método duas vezes na mesma classe",
+      "Criar um método com o mesmo nome de um método da superclasse, alterando seu comportamento",
+      "Remover um método herdado",
+      "Declarar um método como privado"
+    ],
+    "correta": 1
+  },
+  {
+    "pergunta": "O que representa o termo 'self' em métodos de instância em Python?",
+    "alternativas": [
+      "A classe atual",
+      "O objeto atual que está chamando o método",
+      "Um parâmetro opcional",
+      "O módulo principal"
+    ],
+    "correta": 1
+  },
+  {
+    "pergunta": "Qual é o principal objetivo da herança?",
+    "alternativas": [
+      "Evitar repetição de código e promover reutilização",
+      "Ocultar atributos privados",
+      "Garantir que todos os métodos sejam públicos",
+      "Facilitar o acesso direto aos dados"
+    ],
+    "correta": 0
+  },
+  {
+    "pergunta": "O que é uma classe abstrata?",
+    "alternativas": [
+      "Uma classe que não pode ser instanciada diretamente",
+      "Uma classe que contém apenas atributos públicos",
+      "Uma classe usada para definir variáveis globais",
+      "Uma classe sem métodos"
+    ],
+    "correta": 0
+  },
+  {
+    "pergunta": "Em POO, qual é a relação entre classe e objeto?",
+    "alternativas": [
+      "A classe é uma instância de um objeto",
+      "O objeto é um modelo da classe",
+      "A classe é o molde e o objeto é a instância desse molde",
+      "Não existe relação direta"
+    ],
+    "correta": 2
+  },
+  {
+    "pergunta": "O que é composição em POO?",
+    "alternativas": [
+      "Uma classe ser formada por outras classes como partes",
+      "A herança múltipla entre classes",
+      "A criação de métodos privados",
+      "A substituição de herança por interfaces"
+    ],
+    "correta": 0
+  },
+  {
+    "pergunta": "Em Python, qual decorador é usado para criar um método de classe?",
+    "alternativas": [
+      "@staticmethod",
+      "@classmethod",
+      "@property",
+      "@abstractmethod"
+    ],
+    "correta": 1
+  },
+  {
+    "pergunta": "O que é um método estático?",
+    "alternativas": [
+      "Um método que depende de uma instância",
+      "Um método que pode ser chamado sem criar um objeto da classe",
+      "Um método que sobrescreve outro",
+      "Um método que só existe dentro da superclasse"
+    ],
+    "correta": 1
+  },
+  {
+    "pergunta": "Qual das opções NÃO é um pilar da POO?",
+    "alternativas": [
+      "Abstração",
+      "Encapsulamento",
+      "Herança",
+      "Recursividade"
+    ],
+    "correta": 3
+  },
+  {
+    "pergunta": "Quando se deve preferir composição a herança?",
+    "alternativas": [
+      "Quando a relação é 'tem um' em vez de 'é um'",
+      "Quando se deseja sobrescrever muitos métodos",
+      "Quando se quer herdar atributos automaticamente",
+      "Quando se usa apenas tipos primitivos"
+    ],
+    "correta": 0
+  },
+  {
+    "pergunta": "O que acontece se uma subclasse não definir seu próprio construtor?",
+    "alternativas": [
+      "A classe não pode ser instanciada",
+      "O construtor da superclasse é chamado automaticamente",
+      "O Python lança um erro de compilação",
+      "Nenhum construtor é executado"
+    ],
+    "correta": 1
+  },
+  {
+    "pergunta": "O que é um atributo de instância?",
+    "alternativas": [
+      "Um atributo que pertence à classe como um todo",
+      "Um atributo compartilhado entre todas as instâncias",
+      "Um atributo que pertence a cada objeto individualmente",
+      "Um atributo que não pode ser modificado"
+    ],
+    "correta": 2
   }
 ]

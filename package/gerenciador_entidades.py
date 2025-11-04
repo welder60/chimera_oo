@@ -6,32 +6,22 @@ PREDEFINED_ENTIDADES = [
     {"nome": "Humano", "tags": ["HUMANO"], "imagem": "assets/humano.png"},
     {"nome": "Touro", "tags": ["TOURO"], "imagem": "assets/touro.png"},
     {"nome": "Peixe", "tags": ["PEIXE"], "imagem": "assets/peixe.png"},
-    {"nome": "Ferro", "tags": ["FERRO"], "imagem": None},
-    {
-        "nome": "Minotauro",
-        "tags": ["HUMANO", "TOURO"],
-        "imagem": "assets/minotauro.png",
-    },
-    {
-        "nome": "Minotauro de Ferro",
-        "tags": ["HUMANO", "TOURO", "FERRO"],
-        "imagem": None,
-    },
-    {
-        "nome": "Sereia",
-        "tags": ["HUMANO", "PEIXE"],
-        "imagem": "assets/sereia.png",
-    },
-    {
-        "nome": "Sereia de Ferro",
-        "tags": ["HUMANO", "PEIXE", "FERRO"],
-        "imagem": None,
-    },
-    {
-        "nome": "Quimera Marinha",
-        "tags": ["HUMANO", "TOURO", "PEIXE"],
-        "imagem": None,
-    },
+	{"nome": "Ave", "tags": ["AVE"], "imagem": "assets/ave.png"},
+	{"nome": "Leão", "tags": ["LEAO"], "imagem": "assets/leao.png"},
+	{"nome": "Cavalo", "tags": ["CAVALO"], "imagem": "assets/cavalo.png"},
+	{"nome": "Centauro", "tags": ["CAVALO","HUMANO"], "imagem": "assets/centauro.png"},
+	{"nome": "Hipogrifo", "tags": ["CAVALO","AVE","LEAO"], "imagem": "assets/hipogrifo.png"},
+	{"nome": "Hipocampo", "tags": ["CAVALO","PEIXE"], "imagem": "assets/hipocampo.png"},
+	{"nome": "Pégaso", "tags": ["AVE","CAVALO"], "imagem": "assets/pegasus.png"},
+	{"nome": "Grifo", "tags": ["AVE","LEAO"], "imagem": "assets/grifo.png"},
+	{"nome": "Anjo", "tags": ["AVE","HUMANO"], "imagem": "assets/anjo.png"},
+	{"nome": "Centauro Alado", "tags": ["AVE","CAVALO","HUMANO"], "imagem": "assets/centauro_alado.png"},
+	{"nome": "Esfinge", "tags": ["AVE","LEAO","HUMANO"], "imagem": "assets/esfinge.png"},
+	{"nome": "Minotauro", "tags": ["TOURO","HUMANO"], "imagem": "assets/minotauro.png"},
+	{"nome": "Minotauro Alado", "tags": ["TOURO","HUMANO","AVE"], "imagem": "assets/minotauro_alado.png"},
+    {"nome": "Sereia", "tags": ["PEIXE","HUMANO"], "imagem": "assets/sereia.png"},
+	{"nome": "Unicórnio", "tags": ["CAVALO","TOURO"], "imagem": "assets/unicornio.png"},
+	{"nome": "Unicórnio Alado", "tags": ["CAVALO","TOURO","AVE"], "imagem": "assets/unicornio_alado.png"}
 ]
 
 
